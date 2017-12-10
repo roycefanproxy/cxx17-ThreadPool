@@ -1,5 +1,4 @@
 #include <iostream>
-#pragma message("test")
 #include <future>
 #include <functional>
 #include <type_traits>
