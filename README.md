@@ -7,7 +7,7 @@ A simple thread pool written in C++17.
 
 just include all the sources into your project and compile:
 
-`g++ main.cc count_semaphore.cc -std=c++17 -pthread -latomic -o example`
+`g++ main.cc count_semaphore.cc -std=c++17 -pthread -latomic -o example.out`
 
 then you are done.
 
