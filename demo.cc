@@ -1,31 +1,22 @@
 #include <iostream>
 #include <future>
 #include <functional>
-#include <type_traits>
 #include "thread_pool.h"
 #include <chrono>
 #include <thread>
 #include <random>
 #include <ctime>
 #include <atomic>
+#include <csignal>
 using namespace std;
-constexpr size_t thr_num = 1000;
+constexpr size_t thr_num = 100;
 
-struct Test {
-    int operator()() {
-        cout << "Helo" << endl;
-        return 1;
-    }
-};
 
 int main()
 {
-    std::mutex cm;
     thread_pool<thr_num> pool;
     atomic_uint64_t count{0};
     alignas(64) atomic_bool start{false}, stop{false};
-
-
 
     cout << "fine" << endl;
     auto random_sum = [&] {
@@ -52,15 +43,12 @@ int main()
     for (auto& p : ps)
         p = std::move(thread(work));
     start.store(true, memory_order_release);
-    this_thread::sleep_for(1s);
+    this_thread::sleep_for(60s);
     cout << "SPSC case:" << endl;
     cout << "count: " << count.load(memory_order_acquire) << endl;;
     stop.store(true, memory_order_release);
     for (auto& p : ps)
         p.join();
-
-
-    //invoke_result_t<Test> a = 5;
 
     return 0;
 }
