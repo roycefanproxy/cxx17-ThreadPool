@@ -9,7 +9,7 @@
 #include <atomic>
 #include <csignal>
 using namespace std;
-constexpr size_t thr_num = 100;
+constexpr size_t thr_num = 5;
 
 
 int main()
@@ -18,7 +18,6 @@ int main()
     atomic_uint64_t count{0};
     alignas(64) atomic_bool start{false}, stop{false};
 
-    cout << "fine" << endl;
     auto random_sum = [&] {
         mt19937 engine(time(0));
         uniform_int_distribution<unsigned> random_generate(0, 10000000);
@@ -39,13 +38,14 @@ int main()
     };
 
 
-    thread ps[thr_num];
+    constexpr size_t prod_size = thr_num / 2;
+    thread ps[prod_size];
     for (auto& p : ps)
         p = std::move(thread(work));
     start.store(true, memory_order_release);
-    this_thread::sleep_for(60s);
-    cout << "SPSC case:" << endl;
-    cout << "count: " << count.load(memory_order_acquire) << endl;;
+    this_thread::sleep_for(10s);
+    cout << "MPMC case:" << endl;
+    cout << "count: " << count.load(memory_order_acquire) / 10 << endl;;
     stop.store(true, memory_order_release);
     for (auto& p : ps)
         p.join();
