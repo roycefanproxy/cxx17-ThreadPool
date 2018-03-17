@@ -7,7 +7,6 @@
 #include <random>
 #include <ctime>
 #include <atomic>
-#include <csignal>
 using namespace std;
 constexpr size_t thr_num = 5;
 

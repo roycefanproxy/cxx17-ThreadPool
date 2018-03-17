@@ -1,6 +1,6 @@
 #ifndef THREAD_POOL_H
 #define THREAD_POOL_H
-#include <list>
+#include <deque>
 #include <mutex>
 #include <thread>
 #include <csignal>
@@ -24,17 +24,21 @@ public:
     template <typename Func>
     std::future<std::invoke_result_t<Func>> add_task(Func&&);
 
-    std::function<void(int)> get_signal_handler();
+    std::size_t size() const;
+
+    void stop();
 
 private:
     std::array<std::thread, thread_num> workers;
 
     count_semaphore has_job;
     std::atomic_size_t idle_threads;
-    std::list<std::function<void()>> queue;
+    std::deque<std::function<void()>> queue;
     std::mutex q_mutex;
     std::sig_atomic_t quit;
 };
+
+/* ------------Member Implementation------------- */
 
 template <std::size_t N>
 thread_pool<N>::thread_pool()
@@ -69,7 +73,7 @@ template <std::size_t N>
 thread_pool<N>::~thread_pool()
 {
     using namespace std;
-    quit = 1;
+    stop();
 
     for (int i = 0; i != idle_threads.load(); ++i)
         has_job.post();
@@ -108,9 +112,9 @@ std::future<std::invoke_result_t<Func>> thread_pool<N>::add_task(Func&& func)
 }
 
 template <std::size_t N>
-std::function<void(int)> thread_pool<N>::get_signal_handler()
+void thread_pool<N>::stop()
 {
-    return [this] (int) { this->quit = 1; };
+    quit = 1;
 }
 
 #endif 
